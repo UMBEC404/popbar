@@ -1,2 +1,0 @@
-# popbar
-kbidbsdndioewineini wdibwd
