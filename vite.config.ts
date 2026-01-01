@@ -7,6 +7,7 @@ import manifest from './manifest.config'
 export default defineConfig({
   plugins: [react(), crx({ manifest })],
   build: {
+    outDir: 'build',
     rollupOptions: {
       // We don't need a standalone index.html app for the extension build
       input: {},

@@ -71,7 +71,6 @@ function Popbar() {
   const [aiError, setAiError] = useState<string | null>(null)
   const [terminalHistory, setTerminalHistory] = useState<TerminalEntry[]>([])
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [collapsed, setCollapsed] = useState(false)
 
   const [position, setPosition] = useState({ left: DEFAULT_LEFT, top: getDefaultTop() })
   const [width, setWidth] = useState(DEFAULT_WIDTH)
@@ -89,8 +88,10 @@ function Popbar() {
   const resizeStartRef = useRef({ mouseX: 0, mouseY: 0, width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT })
 
   useEffect(() => {
+    console.log('[Popbar] Content script loaded on', window.location.href)
     chrome.runtime.onMessage.addListener((message) => {
       if (message?.type === 'TOGGLE_POPBAR') {
+        console.log('[Popbar] TOGGLE_POPBAR received in content script')
         setVisible((v) => !v)
       }
     })
@@ -247,15 +248,6 @@ function Popbar() {
 
   if (!visible) return null
 
-  const handleClose = () => setVisible(false)
-  const handleMinimize = () => setCollapsed((c) => !c)
-  const handleReset = () => {
-    setCollapsed(false)
-    setPosition({ left: DEFAULT_LEFT, top: getDefaultTop() })
-    setWidth(DEFAULT_WIDTH)
-    setHeight(DEFAULT_HEIGHT)
-  }
-
   const handleUpgradeClick = async () => {
     try {
       const response = await fetch('http://localhost:4000/api/checkout-session', {
@@ -279,16 +271,11 @@ function Popbar() {
   return (
     <div className="popbar-overlay">
       <div
-        className={`popbar-panel${collapsed ? ' collapsed' : ''}`}
+        className="popbar-panel"
         ref={panelRef}
         style={{ left: position.left, top: position.top, width, height }}
       >
         <div className="popbar-header" onMouseDown={handleHeaderMouseDown}>
-          <div className="popbar-traffic-lights">
-            <span className="red" role="button" tabIndex={0} onClick={handleClose} />
-            <span className="yellow" role="button" tabIndex={0} onClick={handleMinimize} />
-            <span className="green" role="button" tabIndex={0} onClick={handleReset} />
-          </div>
           <div className="popbar-modes">
             <button
               className={mode === 'search' ? 'active' : ''}

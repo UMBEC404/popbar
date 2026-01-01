@@ -29,11 +29,25 @@ async function runAiChat(conversation: ChatMessage[]): Promise<ChatMessage> {
 }
 
 chrome.commands.onCommand.addListener((command) => {
+  console.log('[Popbar] Command received:', command)
   if (command === 'toggle_popbar') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tab = tabs[0]
-      if (!tab?.id) return
-      chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_POPBAR' })
+      if (!tab?.id) {
+        console.warn('[Popbar] No active tab to send TOGGLE_POPBAR')
+        return
+      }
+
+      // Use callback form so Chrome doesn't create a Promise that can reject with
+      // "Could not establish connection. Receiving end does not exist" when
+      // the content script is not yet injected in the page.
+      chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_POPBAR' }, () => {
+        if (chrome.runtime.lastError) {
+          console.warn('[Popbar] Failed to send TOGGLE_POPBAR:', chrome.runtime.lastError.message)
+        } else {
+          console.log('[Popbar] TOGGLE_POPBAR sent to tab', tab.id)
+        }
+      })
     })
   }
 })
