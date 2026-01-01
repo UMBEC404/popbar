@@ -9,11 +9,15 @@
   "permissions": [
     "storage",
     "activeTab",
-    "scripting"
+    "scripting",
+    "http://localhost:4000/"
   ],
   "host_permissions": [
     "http://localhost:4000/*"
   ],
+  "content_security_policy": {
+  "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://localhost:4000"
+ },
   "background": {
     "service_worker": "service-worker-loader.js",
     "type": "module"
